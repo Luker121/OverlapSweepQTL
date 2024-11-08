@@ -17,7 +17,7 @@ The simulation is based on the demographic history inferred by Dittberner et al.
 - Generation of 10,000 neutral datasets of 2 Mb each.
 - Assumption of a fixed recombination rate for each simulated block (5.5e-8).
 
-The simulated data are used to establish cut-off values for the omega statistics to minimize false positives due to demographic processes.
+The simulated data are used to establish the 99th percentile cut-off values for the omega statistics to minimize false positives due to demographic processes.
 
 #### `run_OmegaPlus_treesfile_simulatedData.py`
 
@@ -50,22 +50,3 @@ This directory contains the processed output data files from OmegaPlus to furthe
 #### `plot_overlap_QTLs_sweeps.R`
 
 This R script visualizes the overlap between selective sweep regions identified by OmegaPlus and QTLs in *Arabis nemorensis* and *Arabis sagittata* using the output files of OmegaPlus.
-
-## Workflow
-
-1. **Simulation of Demographic History:**
-   - Use `Arabis_divergent_model_singlepop_ancAndrecentMigration.slim` to simulate the demographic history and generate neutral datasets under the model of ancient and recent migration.
-
-2. **Selective Sweep Detection on Simulated Data:**
-   - Run `run_OmegaPlus_treesfile_simulatedData.py` to calculate omega statistics on the simulated datasets.
-   - Extract the maximum omega values from each dataset to build a distribution for threshold determination.
-
-3. **Threshold Determination:**
-   - Use the distribution of maximum omega values from the simulations to determine the 99th percentile threshold.
-
-4. **Selective Sweep Detection on Real Data:**
-   - Run `run_OmegaPlus_vcf_files_realData.py` with specified parameters to detect selective sweeps in the real genomic data.
-   - Process the output files of OmegaPlus using `read_OmegaPlus_vcf_files.py`.
-
-5. **Overlap Analysis with QTLs:**
-   - Use `plot_overlap_QTLs_sweeps.R` to visualize the selective sweep regions and their overlap with the 10% quantile QTLs.
