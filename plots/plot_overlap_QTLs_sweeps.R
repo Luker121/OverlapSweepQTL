@@ -26,7 +26,7 @@ colnames(df_qtls_adjusted)[3] <- "QTL"
 
 # Load and process combined sweep detection data
 directory <- "/path/to/"
-csv_files <- list.files(directory, pattern = "combined_.*minwin5000_maxwin50000_grid200kb.csv", full.names = TRUE)
+csv_files <- list.files(directory, pattern = "combined_.*minwin10000_maxwin100000_grid200kb.csv", full.names = TRUE)
 data_list <- lapply(csv_files, read_csv)
 combined_data <- bind_rows(data_list, .id = "source")
 combined_data$source <- csv_files[as.numeric(combined_data$source)]
