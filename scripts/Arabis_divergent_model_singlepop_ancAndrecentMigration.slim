@@ -1,0 +1,214 @@
+//This script is to run a forward simulation with an ancient population splitting into two subpopulations with ancient and recent gene flow between them
+
+initialize() {
+	
+	if(exists("slimgui")){
+		seed = getSeed();
+	   setSeed(seed);
+		setwd("/path/");
+		path = getwd();
+		defineGlobal("path", path);
+		defineGlobal("seed", seed);
+		defineGlobal("replicate", 1);
+		defineConstant("NAnc", 17147);
+		defineConstant("SelfRate", 0.9);
+		defineConstant("mAncNS", 0.0002);
+	defineConstant("NAncS", 4110);
+	defineConstant("NAncN", 2091);
+	defineConstant("mS", 0.000172734);
+	defineConstant("NsagSym", 5600);
+	defineConstant("NsagAllo", 264);
+	defineConstant("mN", 2.07402e-11);
+	defineConstant("NNemoSym", 3666);
+	defineConstant("NNemoAllo", 3305);
+	defineConstant("mNS", 0.0001);
+	
+	
+		// ----- TIME PARAMETERS -----
+	
+	
+	defineConstant("start_splitAnc", 10); //10
+	defineConstant("today_delay", 581);//0 - 20,000
+	defineConstant("Split_Sagit_delay", 74134);//500,000 - 1,500,000
+	defineConstant("Split_Sagit_gen", start_splitAnc + Split_Sagit_delay - today_delay);
+	defineConstant("Split_Nemo_delay", 72915);//500,000 - 1,500,000
+	defineConstant("Split_Nemo_gen", start_splitAnc + Split_Nemo_delay - today_delay);
+	
+	if (Split_Nemo_gen >= Split_Sagit_gen) {
+	   defineConstant("today_gen", Split_Nemo_gen + today_delay);
+	   defineConstant("start_recGeneFlow", Split_Nemo_gen + 1);
+	}
+		
+	else {
+	   defineConstant("today_gen", Split_Sagit_gen + today_delay);
+	   defineConstant("start_recGeneFlow", Split_Sagit_gen + 1);
+		}
+	
+	
+	} else {
+		
+		setwd("/path/");
+		path = getwd();
+		defineGlobal("path", path);
+		setSeed(seed);
+		defineConstant("scaling_factor", 10);
+	
+		// ----- TIME PARAMETERS -----
+	
+	defineConstant("start_splitAnc", 10); //10
+	defineConstant("Split_Sagit_gen", start_splitAnc + Split_Sagit_delay - today_delay);
+	defineConstant("Split_Nemo_gen", start_splitAnc + Split_Nemo_delay - today_delay);
+	
+	if (Split_Nemo_gen >= Split_Sagit_gen) {
+	   defineConstant("today_gen", Split_Nemo_gen + today_delay);
+	   defineConstant("start_recGeneFlow", Split_Nemo_gen + 1);
+	}
+		
+	else {
+	   defineConstant("today_gen", Split_Sagit_gen + today_delay);
+	   defineConstant("start_recGeneFlow", Split_Sagit_gen + 1);
+		}
+	
+	} // end defining constants
+	
+	
+	// ----- MUTATION PARAMETERS -----
+	defineConstant("mut_rate_mean", 7e-9);
+
+  defineConstant("start", clock());
+
+	// ----- TREE-SEQUENCE RECORDING ----- 
+	initializeTreeSeq(); // If you want to track genealogies
+	initializeMutationRate(0);
+	
+	initializeMutationType("m1", 0.5, "f", 0.0); // Neutral mutations
+	initializeGenomicElementType("g1", m1, 1.0);
+	initializeGenomicElement(g1, 0, 1000000); // 31Mb for chr1 Arabis --> 31339903
+	initializeRecombinationRate((5.56*1e-8)*10);
+	
+
+	
+	
+	
+}
+
+
+1 early() {
+	sim.addSubpop("p1", NAnc);
+	
+	for (sp in sim.subpopulations)
+		sp.setSelfingRate(SelfRate);
+}
+
+
+
+
+start_splitAnc early() {
+	sim.addSubpopSplit("p2", NAncS, p1);
+	
+	//split another pop from the ancestral pop
+	sim.addSubpopSplit("p3", NAncN, p1);
+	
+	p2.setMigrationRates(p3, mAncNS);
+	p3.setMigrationRates(p2, mAncNS);
+	
+	for (sp in sim.subpopulations)
+		sp.setSelfingRate(SelfRate);
+
+}
+
+// ---- EXTINCTION ANCESTRAL POP ----
+
+start_splitAnc+1 early() {
+	p1.setSubpopulationSize(0);
+}
+
+
+
+Split_Sagit_gen early() {
+        
+	//split Sagit from the ancestral pop
+	cat("Split Sagittata" + "\n");
+	cat("gene flow between Nemo and Sagit stopped at split of Sagit" + "\n");
+	p2.setMigrationRates(p3, 0);
+	p3.setMigrationRates(p2, 0);
+	
+	sim.addSubpopSplit("p4", NsagAllo, p2);
+	
+	sim.addSubpopSplit("p5", NsagSym, p2);
+	
+	p4.setMigrationRates(p5, mS);
+	p5.setMigrationRates(p4, mS);
+	
+	
+	for (sp in sim.subpopulations)
+		sp.setSelfingRate(SelfRate);
+
+}
+
+
+Split_Nemo_gen early() {
+        
+	p2.setMigrationRates(p3, 0);
+	p3.setMigrationRates(p2, 0);
+	
+	sim.addSubpopSplit("p6", NNemoAllo, p3);
+	
+	sim.addSubpopSplit("p7", NNemoSym, p3);
+	
+	p6.setMigrationRates(p7, mN);
+	p7.setMigrationRates(p6, mN);
+	
+	
+	for (sp in sim.subpopulations)
+		sp.setSelfingRate(SelfRate);
+
+}
+
+
+start_recGeneFlow early() {
+	// Set migration rates for sympatric
+   p2.setSubpopulationSize(0);
+	p3.setSubpopulationSize(0);
+	p7.setMigrationRates(p5, mNS);
+	p5.setMigrationRates(p7, mNS);
+
+}
+
+
+today_gen late() {
+    
+    // Create unique output directory for each replicate and seed
+    output_dir = path + "/ancAndrecentMigmodel_onepop";
+    if (!fileExists(output_dir)) {
+        createDirectory(output_dir);
+    }
+
+    // Write parameters to a file
+    params_file = output_dir + "/param_set_" + param_set_id + "_seed_" + seed + "_replicate_" + replicate + "_onepop" + "_ancAndrecentMigmodel" + "parameters.txt";
+    params_string = "param_set_id=" + param_set_id + "\n" +
+                    "seed=" + seed + "\n" +
+                    "replicate=" + replicate + "\n" +
+                    "SelfRate=" + SelfRate + "\n" +
+                    "NAnc=" + NAnc + "\n" +
+                    "mAncNS=" + mAncNS + "\n" +
+                    "NAncS=" + NAncS + "\n" +
+                    "NAncN=" + NAncN + "\n" +
+                    "mS=" + mS + "\n" +
+                    "mN=" + mN + "\n" +
+                    "NsagSym=" + NsagSym + "\n" +
+                    "NsagAllo=" + NsagAllo + "\n" +
+                    "NNemoSym=" + NNemoSym + "\n" +
+                    "NNemoAllo=" + NNemoAllo + "\n" +
+                    "start_splitAnc=" + start_splitAnc + "\n" +
+                    "today_delay=" + today_delay + "\n" +
+                    "Split_Sagit_gen=" + Split_Sagit_gen + "\n" +
+                    "Split_Nemo_gen=" + Split_Nemo_gen + "\n" +
+                    "today_gen=" + today_gen + "\n" +
+                    "mNS= " + mNS + "\n" +
+	            "start_recGeneFlow= " + start_recGeneFlow + "\n";
+    writeFile(params_file, params_string);
+    sim.treeSeqOutput(output_dir + "/param_set_" + param_set_id + "_seed_" + seed + "_replicate_" + replicate + "_onepop" + "_ancAndrecentMigmodel" + "overlay.trees");
+    
+    
+}
