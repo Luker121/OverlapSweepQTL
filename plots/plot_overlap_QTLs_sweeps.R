@@ -7,7 +7,7 @@ library(readr)
 library(stringr)
 
 # Load and process QTL data
-df_qtls <- fread("/home/lukas/Dropbox/phd/overlap_QTL_intro/new_REF_genome/map7_all_qtls_peaks_pos.csv")
+df_qtls <- fread("/path/to/map7_all_qtls_peaks_pos.csv")
 
 df_qtls <- df_qtls %>%
   arrange(chr, qtl_start) %>%
@@ -25,7 +25,7 @@ df_qtls_adjusted <- df_qtls %>%
 colnames(df_qtls_adjusted)[3] <- "QTL"
 
 # Load and process combined sweep detection data
-directory <- "/home/lukas/Dropbox/phd/Omegaplus/grid200kb/"
+directory <- "/path/to/"
 csv_files <- list.files(directory, pattern = "combined_.*minwin5000_maxwin50000_grid200kb.csv", full.names = TRUE)
 data_list <- lapply(csv_files, read_csv)
 combined_data <- bind_rows(data_list, .id = "source")
@@ -94,7 +94,7 @@ ggplot() +
   scale_color_manual(values = colors_sweep) +
   scale_fill_manual(values = colors2) +
   labs(x = "Position (bp)", y = "Likelihood", color = "Model", fill = "Phenotype",
-       title = "Sweep Detection and QTL Overlap Across Chromosomes") +
+       title = "Sweep detection and QTL overlap across chromosomes") +
   theme_minimal() +
   theme(legend.position = "bottom")
 
