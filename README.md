@@ -2,18 +2,6 @@
 
 This repository contains scripts, data files, and plots related to the identification of selective sweeps in *Arabis nemorensis* and *Arabis sagittata*. The analysis involves simulating demographic histories, detecting selective sweeps using OmegaPlus, and investigating the overlap between sweep regions and quantitative trait loci (QTLs).
 
-
-## Project Overview
-
-We identified selective sweeps using biallelic SNPs and the OmegaPlus software (Alachiotis et al., 2012). OmegaPlus statistics were calculated using a grid size of 200,000 bp, with minimum and maximum window sizes for computing linkage disequilibrium (LD) values set to 50 kb and 100 kb, respectively. Outlier omega statistics indicative of selective sweeps were determined based on the genome-wide distribution of values.
-
-To minimize false positives arising from demographic processes, we established cut-off values for the omega statistics using forward simulations in SLiM4 (Haller et al.) under the demographic history inferred by Dittberner et al. (2022). The demography includes two pulses of interspecific gene flow between the species: an ancient pulse directly after the species split and a recent migration event between sympatric populations.
-
-We generated 10,000 neutral datasets of 2 Mb each under the demographic history of ancient and recent migration between the two species, assuming a fixed recombination rate for each simulated block (5.5e-8). The maximum omega value from each simulated dataset was extracted, yielding a distribution of 10,000 maximum values. The 99th percentile of this distribution was used as the threshold to identify outlier windows indicative of selective sweeps.
-
-To optimize sweep detection, we tested multiple combinations of grid, minwin, and maxwin parameters (from 50 kb to 200 kb for grid size, and 50 kb to 100 kb for minwin and maxwin). We then applied the optimized parameters to the real dataset of *Arabis nemorensis* and *Arabis sagittata*, extracting only the sweep regions that exceeded the simulation-based threshold, which were considered high-confidence selective sweep regions.
-
-
 ## Files and Descriptions
 
 ### plots/
