@@ -4,12 +4,6 @@ This repository contains scripts, data files, and plots related to the identific
 
 ## Files and descriptions
 
-### plots/
-
-#### `plot_overlap_QTLs_sweeps.R`
-
-This R script visualizes the overlap between selective sweep regions identified by OmegaPlus and QTLs in *Arabis nemorensis* and *Arabis sagittata*.
-
 ### scripts/
 
 #### `Arabis_divergent_model_singlepop_ancAndrecentMigration.slim`
@@ -49,7 +43,13 @@ This Python script processes the output files from the analysis with OmegaPlus.
 
 ### sweep_data_files/
 
-This directory contains the output data files from OmegaPlus.
+This directory contains the processed output data files from OmegaPlus to further investigate overlap with QTLs.
+
+### plots/
+
+#### `plot_overlap_QTLs_sweeps.R`
+
+This R script visualizes the overlap between selective sweep regions identified by OmegaPlus and QTLs in *Arabis nemorensis* and *Arabis sagittata* using the output files of OmegaPlus.
 
 ## Analysis Workflow
 
@@ -64,14 +64,8 @@ This directory contains the output data files from OmegaPlus.
    - Use the distribution of maximum omega values from the simulations to determine the 99th percentile threshold.
 
 4. **Selective Sweep Detection on Real Data:**
-   - Run `run_OmegaPlus_vcf_files_realData.py` with optimized parameters to detect selective sweeps in the real genomic data.
+   - Run `run_OmegaPlus_vcf_files_realData.py` with specified parameters to detect selective sweeps in the real genomic data.
    - Process the output files of OmegaPlus using `read_OmegaPlus_vcf_files.py`.
 
 5. **Overlap Analysis with QTLs:**
-   - Use `plot_overlap_QTLs_sweeps.R` to visualize the selective sweep regions and their overlap with QTLs.
-   - Identify overlapping regions where selective sweeps and QTL peaks co-localize within a 200 kb window.
-   - Focus on the 10% quantile regions around the QTL peak positions for increased specificity.
-
-6. **Visualization and Interpretation:**
-   - Generate plots to illustrate the likelihood profiles of selective sweeps and their association with phenotypic traits.
-   - Interpret the results to pinpoint candidate genomic regions under selection.
+   - Use `plot_overlap_QTLs_sweeps.R` to visualize the selective sweep regions and their overlap with the 10% quantile QTLs.
