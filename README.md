@@ -52,7 +52,7 @@ Detects selective sweeps in the real genomic data of *Arabis nemorensis* and *Ar
 
 ### sweep_data_files/
 
-This directory contains the output data files from OmegaPlus, including:
+This directory contains the output data files from OmegaPlus.
 
 ## Analysis Workflow
 
