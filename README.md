@@ -47,7 +47,7 @@ This Python script processes the output files from the analysis with OmegaPlus.
 
 ### sweep_data_files/
 
-This directory contains the processed output data files from OmegaPlus of Arabis nemorensis and Arabis sagittata to further investigate overlap with QTLs.
+This directory contains the processed output data files from OmegaPlus of *Arabis nemorensis* and *Arabis sagittata* to further investigate overlap with QTLs.
 
 ### plots/
 
