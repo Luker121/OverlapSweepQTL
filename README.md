@@ -51,7 +51,7 @@ This directory contains the processed output data files from OmegaPlus to furthe
 
 This R script visualizes the overlap between selective sweep regions identified by OmegaPlus and QTLs in *Arabis nemorensis* and *Arabis sagittata* using the output files of OmegaPlus.
 
-## Analysis Workflow
+## Workflow
 
 1. **Simulation of Demographic History:**
    - Use `Arabis_divergent_model_singlepop_ancAndrecentMigration.slim` to simulate the demographic history and generate neutral datasets under the model of ancient and recent migration.
