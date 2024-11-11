@@ -84,32 +84,32 @@ colors_sweep <- c("ArabisNemo" = "#B2182B", "ArabisSagit" = "#2166AC")
 
 # Plotting
 ggplot() +
-  # sweep detection data as line plots
+  # Add sweep detection data as line plots, faceted by chromosome
   geom_line(data = combined_data, aes(x = Position, y = Likelihood, color = model), size = 1) +
   # Add a horizontal threshold line
   geom_hline(data = thresholds, aes(yintercept = threshold), color = "purple", linetype = "dashed") +
-  # Add QTLs as rectangle bars
+  # Add QTLs as rectangle bars using adjusted y positions
   geom_rect(data = merged_data,
-            aes(xmin = qtl_start + 1000, xmax = qtl_end - 1000, 
+            aes(xmin = qtl_start + 1000, xmax = qtl_end - 1000,  
                 ymin = y_position, ymax = y_top, fill = QTL),
             alpha = 0.6, inherit.aes = FALSE) +
-  # Add black dot for peak positions of QTLs
+  # Add black dots with white outlines for peak positions of QTLs
   geom_point(data = merged_data, 
              aes(x = qtl_peak_pos, y = (y_position + y_top) / 2), 
-             color = "black", size = 1.6, inherit.aes = FALSE) +  
+             fill = "black", color = "white", shape = 21, size = 2, stroke = 0.04, inherit.aes = FALSE) +
+  # Facet by chromosome with dynamic y-axis limits
   facet_wrap(~chromosome, scales = "free_x") +
   coord_cartesian(ylim = c(0, max(merged_data$max_y_limit))) +
   scale_color_manual(values = colors_sweep) +
   scale_fill_manual(values = colors2) +
-  labs(x = "Position (bp)", y = "Likelihood", color = "Model", fill = "Phenotype")+
-       #title = "Sweep detection and QTL overlap across chromosomes") +
+  labs(x = "Position (bp)", y = "Likelihood", color = "Model", fill = "Phenotype") +
   theme_minimal() +
   theme(
     legend.position = "bottom",
-    legend.text = element_text(size = 12),       
-    legend.title = element_text(size = 14),      
-    axis.text = element_text(size = 12),       
-    axis.title = element_text(size = 14),        
+    legend.text = element_text(size = 12),       # Increase legend text size
+    legend.title = element_text(size = 14),      # Increase legend title size
+    axis.text = element_text(size = 12),         # Increase axis text size
+    axis.title = element_text(size = 14),        # Increase axis title size
     strip.text = element_text(size = 14)
   )
 
