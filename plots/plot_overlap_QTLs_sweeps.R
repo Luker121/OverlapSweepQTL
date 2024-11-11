@@ -22,7 +22,7 @@ df_qtls_adjusted <- df_qtls %>%
   ungroup() %>%
   mutate(Chromosome = as.numeric(chr))
 
-colnames(df_qtls_adjusted)[3] <- "QTL"
+colnames(df_qtls_adjusted)[1] <- "QTL"
 
 # Load and process combined sweep detection data
 directory <- "/path/to/"
@@ -62,13 +62,19 @@ thresholds <- data.frame(
 )
 
 # Colors for QTL phenotypes
-phe_names <- c("Days to Bolting", "Days to Flowering", "Fertility Score", "Influorescence Height", "Lamina Length",
-               "Leaf Length", "Leaf Width", "Number of Leaves", "Petal Length", "Petiole Length",
+phe_names <- c("Days to Bolting", "Days to Flowering", "Fertility Score", "Inflorescence Height",
+               "Lamina Length", "Lamina L/W", "Leaf Length", "Leaf Width",
+               "Number of Leaves", "Petal Length", "Petiole Length",
                "Rosette Diameter 1", "Rosette Diameter 2", "Rosette Diameter 3", "Rosette Diameter 4",
-               "Side Shoots", "Stem Height", "Stem Leaf Density", "Stem Leaf Length", "Stem Leaf Width")
+               "Side Shoots", "Stem Height", "Stem Leaf Density",
+               "Stem Leaf Length", "Stem Leaf Width")
 
-phe_colorp <- c("#b00058", "#ff0000", "#ffc000", "#7f7f7f", "#0070c0", "#002060", "#87afff", "#266f8b", "#ff89c4", "#00b0f0", 
-                "#502273", "#7030a0", "#b17ed8", "#dac2ec", "#7fbd98", "#007b32", "#b9e08c", "#533b1e", "#cfa879")
+phe_colorp <- c("#b00058", "#ff0000", "#ffc000", "#7f7f7f",
+                "#0070c0", "#004272", "#002060", "#87afff",
+                "#266f8b", "#ff89c4", "#00b0f0",
+                "#502273", "#7030a0", "#b17ed8", "#dac2ec",
+                "#7fbd98", "#007b32", "#b9e08c",
+                "#533b1e", "#cfa879")
 
 colors2 <- setNames(phe_colorp, phe_names)
 
@@ -87,7 +93,7 @@ ggplot() +
             alpha = 0.6, inherit.aes = FALSE) +
   # Add black dot for peak positions of QTLs
   geom_point(data = merged_data, 
-             aes(x = peak_pos_bp, y = (y_position + y_top) / 2), 
+             aes(x = qtl_peak_pos, y = (y_position + y_top) / 2), 
              color = "black", size = 1.6, inherit.aes = FALSE) +  
   facet_wrap(~chromosome, scales = "free_x") +
   coord_cartesian(ylim = c(0, max(merged_data$max_y_limit))) +
@@ -112,7 +118,7 @@ sweeps_above_threshold <- sweeps_above_threshold %>%
 # overlaps between sweeps and QTL peaks
 overlapping_sweeps <- sweeps_above_threshold %>%
   inner_join(df_qtls_adjusted, by = c("chromosome" = "chr")) %>%
-  filter(sweep_window_start <= peak_pos_bp & sweep_window_end >= peak_pos_bp)
+  filter(sweep_window_start <= qtl_peak_pos & sweep_window_end >= qtl_peak_pos)
 print(overlapping_sweeps)
 
 # Plotting the overlaps between sweep windows and QTL peaks
@@ -124,7 +130,7 @@ ggplot() +
                size = 2) +
   # Add QTL peaks as points, colored by phenotype (phe)
   geom_point(data = overlapping_sweeps, 
-             aes(x = peak_pos_bp, y = chromosome, color = QTL),
+             aes(x = qtl_peak_pos, y = chromosome, color = QTL),
              size = 4) +
   labs(x = "Position (bp)", y = "Chromosome", color = "Legend", 
        title = "Overlaps between sweep windows and QTL peaks") +
@@ -139,8 +145,8 @@ ggplot() +
 
 # Adjust QTLs to create the 10% quantile around the peak position
 df_qtls_adjusted <- df_qtls %>%
-  mutate(quantile_start = pmax(peak_pos_bp - (peak_pos_bp - qtl_start) * 0.10, qtl_start),
-         quantile_end = pmin(peak_pos_bp + (qtl_end - peak_pos_bp) * 0.10, qtl_end))
+  mutate(quantile_start = pmax(qtl_peak_pos - (qtl_peak_pos - qtl_start) * 0.10, qtl_start),
+         quantile_end = pmin(qtl_peak_pos + (qtl_end - qtl_peak_pos) * 0.10, qtl_end))
 # Adjust sweeps_above_threshold to include a window of + and - 100,000 bp around each position
 sweeps_above_threshold <- combined_data %>%
   filter(Likelihood > 21) %>%
@@ -171,7 +177,7 @@ ggplot() +
             alpha = 0.6) +
   # Add a black vertical bar at the QTL peak position, spanning the height of the QTL bar
   geom_segment(data = overlapping_sweeps, 
-               aes(x = peak_pos_bp, xend = peak_pos_bp, 
+               aes(x = qtl_peak_pos, xend = qtl_peak_pos, 
                    y = chromosome + 0.1, yend = chromosome + 0.3), 
                color = "black", size = 1) +
   labs(x = "Position (bp)", y = "Chromosome", color = "Species", fill = "Phenotype",
