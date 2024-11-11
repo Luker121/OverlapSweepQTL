@@ -101,10 +101,17 @@ ggplot() +
   coord_cartesian(ylim = c(0, max(merged_data$max_y_limit))) +
   scale_color_manual(values = colors_sweep) +
   scale_fill_manual(values = colors2) +
-  labs(x = "Position (bp)", y = "Likelihood", color = "Model", fill = "Phenotype",
-       title = "Sweep detection and QTL overlap across chromosomes") +
+  labs(x = "Position (bp)", y = "Likelihood", color = "Model", fill = "Phenotype")+
+       #title = "Sweep detection and QTL overlap across chromosomes") +
   theme_minimal() +
-  theme(legend.position = "bottom")
+  theme(
+    legend.position = "bottom",
+    legend.text = element_text(size = 12),       
+    legend.title = element_text(size = 14),      
+    axis.text = element_text(size = 12),       
+    axis.title = element_text(size = 14),        
+    strip.text = element_text(size = 14)
+  )
 
 ################## overlap QTL peak and sweep 200kb window ################
 
