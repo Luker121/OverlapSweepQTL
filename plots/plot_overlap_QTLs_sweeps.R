@@ -5,9 +5,11 @@ library(tidyr)
 library(ggpubr)
 library(readr)
 library(stringr)
+library(GenomicRanges)
+library(IRanges)
 
 # Load and process QTL data
-df_qtls <- fread("/path/to/map7_all_qtls_peaks_pos.csv")
+df_qtls <- fread("/path/to/map7_all_qtls_cross_control_peaks_pos.csv")
 
 df_qtls <- df_qtls %>%
   arrange(chr, qtl_start) %>%
@@ -186,3 +188,68 @@ ggplot() +
   scale_color_manual(values = c(colors_sweep)) +
   scale_fill_manual(values = colors2) +
   scale_y_continuous(breaks = seq(min(sweeps_above_threshold$chromosome), max(sweeps_above_threshold$chromosome), by = 1))
+
+
+#### plots of 10% quantile but with overlapping sweeps on top of each other as offset ###
+sweeps_above_threshold$chromosome <- as.character(sweeps_above_threshold$chromosome)
+df_qtls_adjusted$chr <- as.character(df_qtls_adjusted$chr)
+
+sweeps_gr <- GRanges(
+  seqnames = sweeps_above_threshold$chromosome,
+  ranges = IRanges(
+    start = sweeps_above_threshold$sweep_window_start,
+    end = sweeps_above_threshold$sweep_window_end
+  )
+)
+
+qtls_gr <- GRanges(
+  seqnames = df_qtls_adjusted$chr,
+  ranges = IRanges(
+    start = df_qtls_adjusted$quantile_start,
+    end = df_qtls_adjusted$quantile_end
+  )
+)
+
+# Find overlaps between QTLs and sweeps
+overlaps <- findOverlaps(qtls_gr, sweeps_gr)
+overlapping_qtls <- df_qtls_adjusted[unique(queryHits(overlaps)), ]
+
+# Assign offsets to overlapping QTLs
+overlapping_qtls <- overlapping_qtls %>%
+  group_by(chr) %>%
+  arrange(quantile_start) %>%
+  mutate(offset = disjointBins(IRanges(start = quantile_start, end = quantile_end)) - 1) %>%
+  ungroup()
+overlapping_qtls$offset <- as.numeric(overlapping_qtls$offset)
+overlapping_qtls$chr_numeric <- as.numeric(overlapping_qtls$chr)
+sweeps_above_threshold$chromosome_numeric <- as.numeric(sweeps_above_threshold$chromosome)
+
+# Plotting the overlaps with adjusted y-positions
+ggplot() +
+  # Add sweep windows as horizontal lines, colored by model (nemo and allo)
+  geom_segment(data = sweeps_above_threshold, 
+               aes(x = sweep_window_start, xend = sweep_window_end, 
+                   y = chromosome_numeric, yend = chromosome_numeric, color = model), 
+               size = 2) +
+  
+  # Add QTL quantile ranges as horizontal bars, adjusted by offset
+  geom_rect(data = overlapping_qtls, 
+            aes(xmin = quantile_start, xmax = quantile_end, 
+                ymin = chr_numeric + 0.1 + 0.2 * offset, 
+                ymax = chr_numeric + 0.3 + 0.2 * offset, fill = phe), 
+            alpha = 0.6) +
+  
+  # Add a black vertical bar at the QTL peak position, adjusted by offset
+  geom_segment(data = overlapping_qtls, 
+               aes(x = qtl_peak_pos, xend = qtl_peak_pos, 
+                   y = chr_numeric + 0.1 + 0.2 * offset, 
+                   yend = chr_numeric + 0.3 + 0.2 * offset), 
+               color = "black", size = 1) +
+  labs(x = "Position (bp)", y = "Chromosome", color = "Species", fill = "Phenotype",
+       title = "Overlaps between sweep windows and QTL 10% quantile regions") +
+  theme_minimal() +
+  scale_color_manual(values = colors_sweep) +
+  scale_fill_manual(values = colors2) +
+  scale_y_continuous(breaks = seq(min(sweeps_above_threshold$chromosome_numeric), 
+                                  max(sweeps_above_threshold$chromosome_numeric), by = 1))
+
