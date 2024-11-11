@@ -106,10 +106,10 @@ ggplot() +
   theme_minimal() +
   theme(
     legend.position = "bottom",
-    legend.text = element_text(size = 12),       # Increase legend text size
-    legend.title = element_text(size = 14),      # Increase legend title size
-    axis.text = element_text(size = 12),         # Increase axis text size
-    axis.title = element_text(size = 14),        # Increase axis title size
+    legend.text = element_text(size = 12),
+    legend.title = element_text(size = 14), 
+    axis.text = element_text(size = 12), 
+    axis.title = element_text(size = 14), 
     strip.text = element_text(size = 14)
   )
 
